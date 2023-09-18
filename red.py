@@ -27,13 +27,14 @@ data_frame = data_frame.drop(columns="level")
 # print(data_frame.image[2])
 
 n = 35126
+inicio = 19551
 pasta = "TRAIN/"
 
-for i in range(35100,n):
-    if i % 100 == 0:
-    	p = np.round(i/n*100,2)
-    	print("Total concluído: " + f"{p:.2f}" + "%")
-    path = pasta + data_frame.image[i] + ".jpeg"
+for ii in range(inicio,n):
+    if ii % 100 == 0:
+        p = np.round(ii/n*100,2)
+        print("Total concluído: " + f"{p:.2f}" + "%")
+    path = pasta + data_frame.image[ii] + ".jpeg"
 
     imagem = cv2.imread(path)
 
@@ -86,18 +87,43 @@ for i in range(35100,n):
 
     #plt.plot(x)
     #plt.show()
-
+    rows = coord4 - coord3
+    collums = coord2 - coord1
+    
     imagem2 = imagem[coord3:coord4,coord1:coord2,:]
+	
+    if collums > rows:
+        new_image = np.zeros((collums,collums,3), dtype="uint8")
+        ponto_inicial = int(collums/2 - rows/2)
+        for cl in range(collums):
+            for rw in range(ponto_inicial,ponto_inicial+rows):
+                for camada in range(3):
+                    new_image[rw,cl,camada] = imagem2[rw-ponto_inicial,cl,camada]
+    elif rows > collums:
+        new_image = np.zeros((rows,rows,3), dtype="uint8")
+        ponto_inicial = int(rows/2 - collums/2)
+        for cl in range(ponto_inicial,ponto_inicial+collums):
+            for rw in range(rows):
+                for camada in range(3):
+                    new_image[rw,cl,camada] = imagem2[rw,cl-ponto_inicial,camada]
+    else:
+        new_image = imagem2
+	
+	
+	
+	
+    # imagem2 = imagem[coord3:coord4,coord1:coord2,:]
+    
     # cv2.imshow('Image',imagem2)
     # cv2.waitKey(0)
 
     # print(f"x1 = {coord1}, x2 = {len(imagem[0,:,0])-coord2}, y1 = {coord3}, y2 = {len(imagem[:,0,0])-coord4}")
 
-    imagem3 = cv2.resize(imagem2, (224,224), interpolation=cv2.INTER_LANCZOS4)
+    imagem3 = cv2.resize(new_image, (224,224), interpolation=cv2.INTER_LANCZOS4)
     # cv2.imshow('Image',imagem3)
     # cv2.waitKey(0)
 
-    npath = "redim" + pasta + path[len(pasta):]
+    npath = "redim_teste" + pasta + path[len(pasta):]
     # print(npath)
 
     cv2.imwrite(npath, imagem3)
