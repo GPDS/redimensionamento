@@ -7,19 +7,20 @@ from os import system
 from numba import njit
 
 @njit
-def forROW(rows,collums,ponto_inicial,new_image):
-    for cl in range(collums):
-        for rw in range(ponto_inicial,ponto_inicial+rows):
+def forROW(rowsf,collumsf,ponto_inicialf,new_imagef,imagem2):
+    for cl in range(collumsf):
+        for rw in range(ponto_inicialf,ponto_inicialf+rowsf):
             for camada in range(3):
-                new_image[rw,cl,camada] = imagem2[rw-ponto_inicial,cl,camada]
-    return new_image
+                new_imagef[rw,cl,camada] = imagem2[rw-ponto_inicialf,cl,camada]
+    return new_imagef
+
 @njit
-def forCOLLUM(rows,collums,ponto_inicial,new_image):
-    for cl in range(ponto_inicial,ponto_inicial+collums):
-        for rw in range(rows):
+def forCOLLUM(rowsf,collumsf,ponto_inicialf,new_imagef,imagem2):
+    for cl in range(ponto_inicialf,ponto_inicialf+collumsf):
+        for rw in range(rowsf):
             for camada in range(3):
-                new_image[rw,cl,camada] = imagem2[rw,cl-ponto_inicial,camada]
-    return new_image
+                new_imagef[rw,cl,camada] = imagem2[rw,cl-ponto_inicialf,camada]
+    return new_imagef
 
 # system("clear")
 
@@ -42,7 +43,7 @@ data_frame = data_frame.drop(columns="level")
 # print(data_frame.image[2])
 
 n = 35126
-inicio = 19551
+inicio = 26161
 pasta = "TRAIN/"
 
 for ii in range(inicio,n):
@@ -110,11 +111,11 @@ for ii in range(inicio,n):
     if collums > rows:
         new_image = np.zeros((collums,collums,3), dtype="uint8")
         ponto_inicial = int(collums/2 - rows/2)
-        new_image = forROW(rows,collums,ponto_inicial,new_image)
+        new_image = forROW(rows,collums,ponto_inicial,new_image,imagem2)
     elif rows > collums:
         new_image = np.zeros((rows,rows,3), dtype="uint8")
         ponto_inicial = int(rows/2 - collums/2)
-        new_image = forCOLLUM(rows,collums,ponto_inicial,new_image)
+        new_image = forCOLLUM(rows,collums,ponto_inicial,new_image,imagem2)
     else:
         new_image = imagem2
 	
