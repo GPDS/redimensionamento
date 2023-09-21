@@ -3,8 +3,23 @@ import cv2
 import matplotlib.pyplot as plt
 import pandas as pd
 from os import system
-from skimage.metrics import structural_similarity as ssim
-#from numba import njit
+#from skimage.metrics import structural_similarity as ssim
+from numba import njit
+
+@njit
+def forROW(rows,collums,ponto_inicial,new_image):
+    for cl in range(collums):
+        for rw in range(ponto_inicial,ponto_inicial+rows):
+            for camada in range(3):
+                new_image[rw,cl,camada] = imagem2[rw-ponto_inicial,cl,camada]
+    return new_image
+@njit
+def forCOLLUM(rows,collums,ponto_inicial,new_image):
+    for cl in range(ponto_inicial,ponto_inicial+collums):
+        for rw in range(rows):
+            for camada in range(3):
+                new_image[rw,cl,camada] = imagem2[rw,cl-ponto_inicial,camada]
+    return new_image
 
 # system("clear")
 
@@ -95,42 +110,14 @@ for ii in range(inicio,n):
     if collums > rows:
         new_image = np.zeros((collums,collums,3), dtype="uint8")
         ponto_inicial = int(collums/2 - rows/2)
-        for cl in range(collums):
-            for rw in range(ponto_inicial,ponto_inicial+rows):
-                for camada in range(3):
-                    new_image[rw,cl,camada] = imagem2[rw-ponto_inicial,cl,camada]
+        new_image = forROW(rows,collums,ponto_inicial,new_image)
     elif rows > collums:
         new_image = np.zeros((rows,rows,3), dtype="uint8")
         ponto_inicial = int(rows/2 - collums/2)
-        for cl in range(ponto_inicial,ponto_inicial+collums):
-            for rw in range(rows):
-                for camada in range(3):
-                    new_image[rw,cl,camada] = imagem2[rw,cl-ponto_inicial,camada]
+        new_image = forCOLLUM(rows,collums,ponto_inicial,new_image)
     else:
         new_image = imagem2
 	
-	
-	
-	
-    # imagem2 = imagem[coord3:coord4,coord1:coord2,:]
-    
-    # cv2.imshow('Image',imagem2)
-    # cv2.waitKey(0)
-
-    # print(f"x1 = {coord1}, x2 = {len(imagem[0,:,0])-coord2}, y1 = {coord3}, y2 = {len(imagem[:,0,0])-coord4}")
-
     imagem3 = cv2.resize(new_image, (224,224), interpolation=cv2.INTER_LANCZOS4)
-    # cv2.imshow('Image',imagem3)
-    # cv2.waitKey(0)
-
     npath = "redim_teste" + pasta + path[len(pasta):]
-    # print(npath)
-
     cv2.imwrite(npath, imagem3)
-
-    # gray_image = cv2.cvtColor(imagem2, cv2.COLOR_BGR2GRAY)
-    # gray_image2 = cv2.cvtColor(imagem3, cv2.COLOR_BGR2GRAY)
-
-    # score1 = Inf_spatial(gray_image)
-    # score2 = Inf_spatial(gray_image2)
-    # print(f"Imagem 1 = {score1}, Imagem 2 = {score2}")
